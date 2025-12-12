@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { AnyItem, User } from '../types';
 import Card from '../components/Card';
 import { networkingList, matchingList, crewList, lectureList } from '../constants';
-import { Crown, Trophy, Target, Star, FolderOpen, Heart } from 'lucide-react';
+import { Trophy, Heart, FolderOpen } from 'lucide-react';
 
 interface MyPageProps {
   likedIds: number[];
@@ -22,11 +22,8 @@ const MyPage: React.FC<MyPageProps> = ({ likedIds, appliedIds, unlockedIds, onIt
   const likedItems = allItems.filter(item => likedIds.includes(item.id));
   const myLibraryItems = allItems.filter(item => appliedIds.includes(item.id) || unlockedIds.includes(item.id));
 
-  // --- Gamification Logic ---
-  // XP Rules: Like = 10xp, Apply/Purchase = 50xp
   const totalXP = (likedItems.length * 10) + (myLibraryItems.length * 50);
   
-  // Level Logic
   let level = 1;
   let rankName = "임린이";
   let nextRankName = "임대장";
@@ -55,7 +52,7 @@ const MyPage: React.FC<MyPageProps> = ({ likedIds, appliedIds, unlockedIds, onIt
   return (
     <div className="max-w-7xl mx-auto animate-in fade-in duration-500">
       
-      {/* Banner Section */}
+      {/* Banner */}
       <div className="rounded-3xl mb-8 shadow-lg relative overflow-hidden group h-[200px]">
         <div 
             className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
@@ -69,52 +66,52 @@ const MyPage: React.FC<MyPageProps> = ({ likedIds, appliedIds, unlockedIds, onIt
       </div>
       
       {/* Profile & Gamification Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm mb-8 relative -mt-16 mx-4 md:mx-0 z-20 overflow-hidden animate-in slide-in-from-bottom-4 duration-700">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm mb-8 relative -mt-16 mx-4 md:mx-0 z-20 overflow-hidden animate-in slide-in-from-bottom-4 duration-700">
         <div className="p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8">
-            {/* Avatar & Basic Info */}
+            {/* Avatar */}
             <div className="flex flex-col items-center text-center md:items-start md:text-left flex-shrink-0">
-                <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-4xl shadow-inner border-4 border-white mb-3 relative">
+                <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-4xl shadow-inner border-4 border-white dark:border-slate-700 mb-3 relative">
                     {currentUser ? <img src={currentUser.avatar} className="w-full h-full rounded-full" /> : icon}
-                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white">
+                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white dark:border-slate-800">
                         Lv.{level}
                     </div>
                 </div>
-                <h2 className="text-xl font-bold text-slate-900">{currentUser ? currentUser.name : '비회원'}</h2>
-                <p className="text-slate-500 text-sm font-medium">{rankName} 단계</p>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{currentUser ? currentUser.name : '비회원'}</h2>
+                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{rankName} 단계</p>
             </div>
 
-            {/* Stats & Progress */}
+            {/* Stats */}
             <div className="flex-1 w-full">
                 <div className="grid grid-cols-3 gap-4 mb-6 text-center">
-                    <div className="bg-slate-50 p-3 rounded-xl">
+                    <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl">
                         <p className="text-xs text-slate-400 mb-1">총 경험치</p>
-                        <p className="text-lg font-black text-slate-800">{totalXP} XP</p>
+                        <p className="text-lg font-black text-slate-800 dark:text-white">{totalXP} XP</p>
                     </div>
-                    <div className="bg-slate-50 p-3 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => setActiveTab('liked')}>
+                    <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" onClick={() => setActiveTab('liked')}>
                         <p className="text-xs text-slate-400 mb-1">찜한 목록</p>
                         <p className="text-lg font-black text-pink-500">{likedItems.length}</p>
                     </div>
-                    <div className="bg-slate-50 p-3 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => setActiveTab('applied')}>
+                    <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" onClick={() => setActiveTab('applied')}>
                         <p className="text-xs text-slate-400 mb-1">내 서재</p>
-                        <p className="text-lg font-black text-indigo-500">{myLibraryItems.length}</p>
+                        <p className="text-lg font-black text-indigo-500 dark:text-indigo-400">{myLibraryItems.length}</p>
                     </div>
                 </div>
 
-                {/* Level Progress Bar */}
+                {/* Level Progress */}
                 <div className="relative pt-1">
                     <div className="flex mb-2 items-center justify-between">
                         <div>
-                            <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200 mr-2">
+                            <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 dark:text-indigo-300 bg-indigo-200 dark:bg-indigo-900/40 mr-2">
                                 <Trophy size={12} className="inline mr-1 mb-0.5"/> Level Up
                             </span>
                         </div>
                         <div className="text-right">
-                            <span className="text-xs font-semibold inline-block text-indigo-600">
+                            <span className="text-xs font-semibold inline-block text-indigo-600 dark:text-indigo-400">
                                 {nextRankName}까지 {maxXP - totalXP} XP 남음
                             </span>
                         </div>
                     </div>
-                    <div className="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-indigo-100">
+                    <div className="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-indigo-100 dark:bg-indigo-900/30">
                         <div style={{ width: `${progressPercent}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500 transition-all duration-1000 ease-out"></div>
                     </div>
                 </div>
@@ -123,18 +120,18 @@ const MyPage: React.FC<MyPageProps> = ({ likedIds, appliedIds, unlockedIds, onIt
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-200 mb-6 sticky top-0 bg-slate-50/95 backdrop-blur z-20 pt-4">
-        <button onClick={() => setActiveTab('liked')} className={`px-6 py-3 font-bold text-sm transition-colors relative ${activeTab === 'liked' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}>
+      <div className="flex border-b border-slate-200 dark:border-slate-800 mb-6 sticky top-0 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur z-20 pt-4 transition-colors duration-300">
+        <button onClick={() => setActiveTab('liked')} className={`px-6 py-3 font-bold text-sm transition-colors relative ${activeTab === 'liked' ? 'text-slate-900 dark:text-white' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}>
             찜한 목록
-            {activeTab === 'liked' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900"></div>}
+            {activeTab === 'liked' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900 dark:bg-white"></div>}
         </button>
-        <button onClick={() => setActiveTab('applied')} className={`px-6 py-3 font-bold text-sm transition-colors relative ${activeTab === 'applied' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}>
+        <button onClick={() => setActiveTab('applied')} className={`px-6 py-3 font-bold text-sm transition-colors relative ${activeTab === 'applied' ? 'text-slate-900 dark:text-white' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}>
             내 서재 (신청/구매)
-            {activeTab === 'applied' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900"></div>}
+            {activeTab === 'applied' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900 dark:bg-white"></div>}
         </button>
       </div>
 
-      {/* Content Grid with Staggered Animation */}
+      {/* Content Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {activeTab === 'liked' ? (
             likedItems.length > 0 ? (
@@ -144,12 +141,12 @@ const MyPage: React.FC<MyPageProps> = ({ likedIds, appliedIds, unlockedIds, onIt
                     </div>
                 ))
             ) : (
-                <div className="col-span-full py-24 text-center bg-white rounded-2xl border border-dashed border-slate-300 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
-                    <div className="w-16 h-16 bg-pink-50 rounded-full flex items-center justify-center mb-4 text-pink-300">
+                <div className="col-span-full py-24 text-center bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
+                    <div className="w-16 h-16 bg-pink-50 dark:bg-pink-900/20 rounded-full flex items-center justify-center mb-4 text-pink-300 dark:text-pink-600">
                         <Heart size={32} />
                     </div>
-                    <p className="text-slate-800 font-bold text-lg mb-1">아직 찜한 모임이 없어요.</p>
-                    <p className="text-slate-400 text-sm">관심 있는 모임에 하트를 눌러보세요!</p>
+                    <p className="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">아직 찜한 모임이 없어요.</p>
+                    <p className="text-slate-400 dark:text-slate-500 text-sm">관심 있는 모임에 하트를 눌러보세요!</p>
                 </div>
             )
         ) : (
@@ -160,12 +157,12 @@ const MyPage: React.FC<MyPageProps> = ({ likedIds, appliedIds, unlockedIds, onIt
                     </div>
                 ))
             ) : (
-                <div className="col-span-full py-24 text-center bg-white rounded-2xl border border-dashed border-slate-300 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
-                     <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mb-4 text-indigo-300">
+                <div className="col-span-full py-24 text-center bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
+                     <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mb-4 text-indigo-300 dark:text-indigo-600">
                         <FolderOpen size={32} />
                     </div>
-                    <p className="text-slate-800 font-bold text-lg mb-1">내 서재가 비어있어요.</p>
-                    <p className="text-slate-400 text-sm">모임을 신청하거나 리포트를 구매하면 여기에 보관됩니다.</p>
+                    <p className="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">내 서재가 비어있어요.</p>
+                    <p className="text-slate-400 dark:text-slate-500 text-sm">모임을 신청하거나 리포트를 구매하면 여기에 보관됩니다.</p>
                 </div>
             )
         )}
