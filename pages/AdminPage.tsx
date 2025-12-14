@@ -490,12 +490,12 @@ const SettlementManager = ({ items, commissionRate, setCommissionRate }: { items
                 <div className="flex items-center justify-between mb-6"> <div> <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2"><Settings size={20} className="text-slate-500" /> 정산 및 수수료 설정</h3> <p className="text-sm text-slate-500">플랫폼 수수료율 설정 및 정산 대시보드입니다.</p> </div> <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100"> <span className="text-sm font-bold text-slate-600">현재 수수료율</span> <div className="flex items-center gap-1"> <input type="number" value={commissionRate} onChange={(e) => setCommissionRate(Number(e.target.value))} className="w-16 text-right font-black text-xl bg-transparent outline-none text-indigo-600 border-b-2 border-indigo-200 focus:border-indigo-600 transition-colors" /> <span className="text-lg font-bold text-indigo-600">%</span> </div> </div> </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> 
                     <div className="bg-orange-50 p-5 rounded-xl border border-orange-100"> 
-                        <p className="text-sm font-bold text-orange-600 mb-1 flex items-center gap-2"><Wallet size={16}/> 호스트 지급 예정액 (Platform -> Host)</p> 
+                        <p className="text-sm font-bold text-orange-600 mb-1 flex items-center gap-2"><Wallet size={16}/> 호스트 지급 예정액 (Platform -&gt; Host)</p> 
                         <p className="text-xs text-orange-400 mb-2">마인드데이트 등 플랫폼 결제 건</p>
                         <p className="text-2xl font-black text-orange-900">₩ {totalToPay.toLocaleString()}</p> 
                     </div> 
                     <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-100"> 
-                        <p className="text-sm font-bold text-emerald-600 mb-1 flex items-center gap-2"><FileText size={16}/> 수수료 청구 예정액 (Host -> Platform)</p> 
+                        <p className="text-sm font-bold text-emerald-600 mb-1 flex items-center gap-2"><FileText size={16}/> 수수료 청구 예정액 (Host -&gt; Platform)</p> 
                         <p className="text-xs text-emerald-400 mb-2">크루/강의 등 호스트 직접 결제 건</p>
                         <p className="text-2xl font-black text-emerald-900">₩ {totalToCollect.toLocaleString()}</p> 
                     </div> 
