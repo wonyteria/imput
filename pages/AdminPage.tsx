@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, Users, Map, Heart, GraduationCap, 
@@ -20,7 +21,6 @@ const initialUsers: User[] = [
     { id: 5, name: '강선생', email: 'teacher@imfoot.com', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jack', roles: ['lecture_manager'], joinDate: '2023-08-05' },
 ];
 
-// ... (ImageUploadField, StatCard components) ...
 const ImageUploadField = ({ label, value, onChange }: { label: string, value: string, onChange: (val: string) => void }) => {
     const [dimensions, setDimensions] = useState<{w: number, h: number} | null>(null);
     React.useEffect(() => {
@@ -111,9 +111,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, isOpen, onClose }: any) => {
   );
 };
 
-// ... PermissionModal, UserTable, EditModal, DataTable ...
 const PermissionModal = ({ user, onClose, onSave }: { user: User, onClose: () => void, onSave: (updatedUser: User) => void }) => {
-    // ... (content remains same)
     const [roles, setRoles] = useState<string[]>(user.roles);
     const toggleRole = (role: string) => { setRoles(prev => prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]); };
     const roleOptions = [
@@ -155,7 +153,6 @@ const UserTable = ({ users, onEdit }: { users: User[], onEdit: (user: User) => v
 };
 
 const EditModal = ({ item, onClose, onSave }: { item: AnyItem, onClose: () => void, onSave: (item: AnyItem) => void }) => {
-    // ... (content remains same)
     const [formData, setFormData] = useState<AnyItem>({ ...item });
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => { const { name, value } = e.target; setFormData(prev => ({ ...prev, [name]: value })); };
     return (
@@ -195,9 +192,7 @@ const DataTable = ({ title, data, onEdit }: { title: string, data: AnyItem[], on
   )
 }
 
-// ... (NotificationManager, BannerManager, etc - content mostly same) ...
 const NotificationManager = ({ notifications, setNotifications }: { notifications: string[], setNotifications: React.Dispatch<React.SetStateAction<string[]>> }) => {
-    // ... same implementation
     const [newNoti, setNewNoti] = useState("");
     const addNoti = () => { if (newNoti.trim()) { setNotifications(prev => [...prev, newNoti]); setNewNoti(""); } };
     const removeNoti = (index: number) => { setNotifications(prev => prev.filter((_, i) => i !== index)); };
@@ -212,7 +207,6 @@ const NotificationManager = ({ notifications, setNotifications }: { notification
     );
 };
 const BannerManager = ({ slides, setSlides }: { slides: Slide[], setSlides: React.Dispatch<React.SetStateAction<Slide[]>> }) => {
-    // ... same implementation
     const updateSlide = (index: number, field: keyof Slide, value: string) => { setSlides(prev => prev.map((s, i) => i === index ? { ...s, [field]: value } : s)); };
     const removeSlide = (index: number) => { if(window.confirm('정말 삭제하시겠습니까?')) { setSlides(prev => prev.filter((_, i) => i !== index)); } };
     const addSlide = () => { setSlides(prev => [...prev, { title: "새로운 배너 타이틀", desc: "배너 설명을 입력하세요", img: "https://images.unsplash.com/photo-1557683316-973673baf926?w=1600" }]); };
@@ -225,9 +219,7 @@ const BannerManager = ({ slides, setSlides }: { slides: Slide[], setSlides: Reac
     );
 };
 
-// ... CategoryHeaderManager, MyPageBannerManager, CategoryDetailManager ...
 const CategoryHeaderManager = ({ headers, setHeaders }: { headers: {[key: string]: CategoryHeaderInfo}, setHeaders: React.Dispatch<React.SetStateAction<{[key: string]: CategoryHeaderInfo}>> }) => {
-    // ... same
     const updateHeader = (key: string, field: keyof CategoryHeaderInfo, val: string) => { 
         setHeaders(prev => ({ 
             ...prev, 
@@ -320,7 +312,6 @@ const FontSettingsManager = ({ currentFont, setFont }: { currentFont: string, se
     );
 };
 
-// ... BriefingManager & SettlementManager remain the same ...
 const BriefingManager = ({ 
     briefing, setBriefing, showToast 
 }: { 
@@ -328,14 +319,13 @@ const BriefingManager = ({
     setBriefing: React.Dispatch<React.SetStateAction<BriefingItem[]>>,
     showToast: (msg: string, type?: 'success' | 'error' | 'info') => void
 }) => {
-    // ... same as previous ...
     const [isLoading, setIsLoading] = useState(false);
     const [editingItem, setEditingItem] = useState<BriefingItem | null>(null);
 
     const generateWithAI = async () => {
         setIsLoading(true);
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
             
             const prompt = `
                 오늘 대한민국 부동산 시장의 가장 중요한 뉴스 3가지를 찾아서 요약해줘.
@@ -458,7 +448,6 @@ const BriefingManager = ({
 };
 
 const SettlementManager = ({ items, commissionRate, setCommissionRate }: { items: AnyItem[], commissionRate: number, setCommissionRate: (val: number) => void }) => {
-    // ... same implementation
     const [localItems, setLocalItems] = useState<AnyItem[]>(items);
 
     const parsePrice = (price?: string | null) => { if (!price || price === '무료') return 0; return parseInt(price.replace(/[^0-9]/g, ''), 10); };
