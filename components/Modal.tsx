@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Calendar, MapPin, DollarSign, User, ChevronRight, Download, Eye, MessageCircle, BarChart2, Heart, AlertCircle, CheckCircle2, Copy, Star, PenTool, Zap, Lock, BookOpen, HelpCircle, Send } from 'lucide-react';
+import { X, Calendar, MapPin, DollarSign, User, ChevronRight, Download, Eye, MessageCircle, BarChart2, Heart, AlertCircle, CheckCircle2, Copy, Star, PenTool, Zap, Lock, BookOpen, HelpCircle, Send, FileText, Smartphone, Award, Briefcase } from 'lucide-react';
 import { AnyItem, CrewItem, LectureItem, MatchingItem, NetworkingItem } from '../types';
 
 interface ModalProps {
@@ -23,7 +23,7 @@ const Modal: React.FC<ModalProps> = ({
     showToast
 }) => {
   const [step, setStep] = useState<'info' | 'payment'>('info');
-  const [activeTab, setActiveTab] = useState<'details' | 'qna'>('details');
+  const [activeTab, setActiveTab] = useState<'details' | 'host' | 'qna'>('details');
   const [question, setQuestion] = useState("");
   const [isSecret, setIsSecret] = useState(false);
 
@@ -47,76 +47,217 @@ const Modal: React.FC<ModalProps> = ({
       showToast("문의가 등록되었습니다. 관리자 확인 후 답변드립니다.", "success");
   };
 
-  // --- Payment Info Component ---
-  const PaymentSection = ({ onConfirm }: { onConfirm?: () => void }) => (
-      <div className="animate-in slide-in-from-right duration-300">
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-xl p-4 mb-6">
-              <div className="flex items-start gap-3">
-                  <div className="bg-red-100 dark:bg-red-900/50 p-1.5 rounded-full text-red-600 dark:text-red-400 mt-0.5">
-                      <Zap size={16} className="fill-red-600 dark:fill-red-400" />
+  // --- Host Info Component ---
+  const HostSection = () => {
+      const isCrew = item.categoryType === 'crew';
+      const crewItem = item as CrewItem;
+      const lectureItem = item as LectureItem;
+      
+      const profileImage = isCrew ? crewItem.leaderProfile : 
+                           item.categoryType === 'lecture' ? lectureItem.teacherProfile : 
+                           "https://api.dicebear.com/7.x/avataaars/svg?seed=Host";
+      
+      const hostName = isCrew ? crewItem.leader : 
+                       item.categoryType === 'lecture' ? lectureItem.teacher : 
+                       item.author;
+
+      return (
+          <div className="animate-in fade-in slide-in-from-right duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                  <div className="relative">
+                      <img src={profileImage || "https://via.placeholder.com/80"} className="w-20 h-20 rounded-full object-cover border-2 border-slate-100 dark:border-slate-700 shadow-sm" />
+                      <div className="absolute -bottom-1 -right-1 bg-indigo-600 text-white p-1 rounded-full border-2 border-white dark:border-slate-900">
+                          <Award size={14} />
+                      </div>
                   </div>
                   <div>
-                      <p className="text-red-600 dark:text-red-400 font-bold text-sm mb-1">입금 순으로 예약이 확정됩니다!</p>
-                      <p className="text-red-500 dark:text-red-300 text-xs">인기 모임은 조기 마감될 수 있습니다.<br/>지금 바로 입금하고 자리를 확보하세요.</p>
+                      <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-bold text-xl text-slate-900 dark:text-white">{hostName}</h3>
+                          <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[10px] px-2 py-0.5 rounded-full font-bold">HOST</span>
+                      </div>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">믿고 함께하는 검증된 리더</p>
+                  </div>
+              </div>
+
+              <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 mb-6">
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <p className="whitespace-pre-line leading-relaxed text-slate-700 dark:text-slate-300">
+                          {item.hostDescription || "안녕하세요! 참여자분들과 함께 성장하고 싶은 호스트입니다. 현장에서 얻은 경험과 노하우를 아낌없이 나누겠습니다. 궁금한 점은 언제든 문의해주세요."}
+                      </p>
+                  </div>
+              </div>
+
+              {item.hostIntroImage && (
+                  <div className="rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 mb-6">
+                      <img src={item.hostIntroImage} alt="Host Intro" className="w-full h-auto object-cover" />
+                  </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl text-center">
+                      <Briefcase className="mx-auto mb-2 text-indigo-500" size={24} />
+                      <p className="text-2xl font-black text-indigo-700 dark:text-indigo-300">12</p>
+                      <p className="text-xs text-indigo-600 dark:text-indigo-400 font-bold">진행한 모임</p>
+                  </div>
+                  <div className="bg-pink-50 dark:bg-pink-900/20 p-4 rounded-xl text-center">
+                      <Heart className="mx-auto mb-2 text-pink-500" size={24} />
+                      <p className="text-2xl font-black text-pink-700 dark:text-pink-300">4.9</p>
+                      <p className="text-xs text-pink-600 dark:text-pink-400 font-bold">평균 만족도</p>
                   </div>
               </div>
           </div>
+      );
+  };
 
-          <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 mb-6">
-              <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center justify-between">
-                  입금 계좌 안내
-                  <span className="text-xs font-normal text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-700 px-2 py-1 rounded border border-slate-200 dark:border-slate-600">예금주: (주)임풋</span>
-              </h3>
-              <div className="bg-white dark:bg-slate-700 p-4 rounded-xl border-2 border-slate-100 dark:border-slate-600 flex items-center justify-between mb-2 shadow-sm">
-                  <span className="text-lg font-bold text-slate-800 dark:text-white tracking-wide">
-                    {(item as any).bankInfo || "우리은행 1002-123-456789"}
-                  </span>
-                  <button 
-                    onClick={() => showToast("계좌번호가 복사되었습니다.", "success")}
-                    className="text-xs bg-slate-100 dark:bg-slate-600 hover:bg-slate-200 dark:hover:bg-slate-500 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-200 font-bold flex items-center gap-1 transition-colors"
-                  >
-                      <Copy size={14}/> 복사
-                  </button>
-              </div>
-              <p className="text-xs text-slate-400 mt-2 text-right">* 신청자명과 입금자명이 일치해야 합니다.</p>
-          </div>
+  // --- Payment Info Component ---
+  const PaymentSection = ({ onConfirm }: { onConfirm?: () => void }) => {
+      const [wantsCashReceipt, setWantsCashReceipt] = useState(false);
+      const [cashReceiptIdentity, setCashReceiptIdentity] = useState("");
 
-          <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 mb-8">
-              <h4 className="font-bold text-slate-700 dark:text-slate-300 text-xs mb-2 flex items-center gap-1">
-                  <AlertCircle size={14}/> 환불 규정
-              </h4>
-              <ul className="text-[11px] text-slate-500 dark:text-slate-400 space-y-1 list-disc list-inside">
-                  <li>모임/강의 시작 3일 전: 100% 환불</li>
-                  <li>모임/강의 시작 2일 전 ~ 당일: <span className="text-red-500 dark:text-red-400 font-bold">환불 불가</span></li>
-                  <li>양도는 시작 24시간 전까지 가능합니다.</li>
-              </ul>
-          </div>
+      // Hybrid Payment Logic
+      const isMindDate = item.categoryType === 'minddate';
+      let bankAccountDisplay = "";
+      let accountHolder = "";
 
-          <div className="flex gap-3">
-              <button onClick={() => setStep('info')} className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                  뒤로가기
-              </button>
-              <button 
-                onClick={() => {
-                    if (onConfirm) {
-                        onConfirm();
-                    } else {
-                        showToast("입금 확인 요청이 전송되었습니다!", "success");
-                        onApply(item.id);
-                        onClose();
-                    }
-                }}
-                className="flex-[2] py-4 bg-slate-900 dark:bg-indigo-600 text-white font-bold rounded-xl hover:bg-slate-800 dark:hover:bg-indigo-500 shadow-lg shadow-slate-200 dark:shadow-none transition-colors flex items-center justify-center gap-2"
-              >
-                  입금 완료했어요 <CheckCircle2 size={18} />
-              </button>
-          </div>
-      </div>
-  );
+      if (isMindDate) {
+          // MindDate -> Platform Account
+          bankAccountDisplay = (item as MatchingItem).bankInfo || "우리은행 1002-123-456789 (주)임풋";
+          accountHolder = "(주)임풋";
+      } else {
+          // Others -> Host Account
+          bankAccountDisplay = item.hostBankInfo || "호스트 계좌 정보 없음 (문의 필요)";
+          accountHolder = `${item.author} (호스트)`;
+      }
+
+      return (
+        <div className="animate-in slide-in-from-right duration-300">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-xl p-4 mb-6">
+                <div className="flex items-start gap-3">
+                    <div className="bg-red-100 dark:bg-red-900/50 p-1.5 rounded-full text-red-600 dark:text-red-400 mt-0.5">
+                        <Zap size={16} className="fill-red-600 dark:fill-red-400" />
+                    </div>
+                    <div>
+                        <p className="text-red-600 dark:text-red-400 font-bold text-sm mb-1">입금 순으로 예약이 확정됩니다!</p>
+                        <p className="text-red-500 dark:text-red-300 text-xs">인기 모임은 조기 마감될 수 있습니다.<br/>지금 바로 입금하고 자리를 확보하세요.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 mb-6">
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center justify-between">
+                    입금 계좌 안내
+                    <span className="text-xs font-normal text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-700 px-2 py-1 rounded border border-slate-200 dark:border-slate-600">예금주: {accountHolder}</span>
+                </h3>
+                <div className="bg-white dark:bg-slate-700 p-4 rounded-xl border-2 border-slate-100 dark:border-slate-600 flex items-center justify-between mb-2 shadow-sm">
+                    <span className="text-lg font-bold text-slate-800 dark:text-white tracking-wide break-all">
+                        {bankAccountDisplay}
+                    </span>
+                    <button 
+                        onClick={() => {
+                            navigator.clipboard.writeText(bankAccountDisplay);
+                            showToast("계좌번호가 복사되었습니다.", "success");
+                        }}
+                        className="text-xs bg-slate-100 dark:bg-slate-600 hover:bg-slate-200 dark:hover:bg-slate-500 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-200 font-bold flex items-center gap-1 transition-colors flex-shrink-0 ml-2"
+                    >
+                        <Copy size={14}/> 복사
+                    </button>
+                </div>
+                {!isMindDate && (
+                    <p className="text-[11px] text-indigo-500 dark:text-indigo-400 mt-2 text-right font-bold">
+                        * 호스트 직접 결제 상품입니다. 거래 책임은 당사자에게 있습니다.
+                    </p>
+                )}
+            </div>
+
+            {/* Cash Receipt Request */}
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 mb-6">
+                <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm flex items-center gap-2">
+                        <FileText size={16} className="text-indigo-500"/> {isMindDate ? '현금영수증 신청' : '호스트에게 현금영수증 요청하기'}
+                    </h4>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" checked={wantsCashReceipt} onChange={(e) => setWantsCashReceipt(e.target.checked)} className="sr-only peer" />
+                        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </label>
+                </div>
+                
+                {wantsCashReceipt && (
+                    <div className="mt-3 animate-in fade-in slide-in-from-top-2">
+                        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">휴대폰 번호 또는 사업자 번호</label>
+                        <div className="relative">
+                            <input 
+                                type="text" 
+                                value={cashReceiptIdentity}
+                                onChange={(e) => setCashReceiptIdentity(e.target.value)}
+                                placeholder="010-0000-0000"
+                                className="w-full pl-9 px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white"
+                            />
+                            <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                        </div>
+                        <p className="text-[10px] text-slate-400 mt-1">
+                            {isMindDate ? "입금 확인 후 국세청에 자동 발급됩니다." : "호스트에게 발급 요청 메시지가 함께 전송됩니다."}
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 mb-8">
+                <h4 className="font-bold text-slate-700 dark:text-slate-300 text-xs mb-2 flex items-center gap-1">
+                    <AlertCircle size={14}/> 환불 규정
+                </h4>
+                <ul className="text-[11px] text-slate-500 dark:text-slate-400 space-y-1 list-disc list-inside">
+                    <li>모임/강의 시작 3일 전: 100% 환불</li>
+                    <li>모임/강의 시작 2일 전 ~ 당일: <span className="text-red-500 dark:text-red-400 font-bold">환불 불가</span></li>
+                    <li>양도는 시작 24시간 전까지 가능합니다.</li>
+                </ul>
+            </div>
+
+            <div className="flex gap-3">
+                <button onClick={() => setStep('info')} className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                    뒤로가기
+                </button>
+                <button 
+                    onClick={() => {
+                        if (wantsCashReceipt && !cashReceiptIdentity) {
+                            showToast("현금영수증 발급 번호를 입력해주세요.", "error");
+                            return;
+                        }
+                        if (onConfirm) {
+                            onConfirm();
+                        } else {
+                            if (wantsCashReceipt) {
+                                showToast(`입금 확인 및 현금영수증 신청이 완료되었습니다.`, "success");
+                            } else {
+                                showToast("입금 확인 요청이 전송되었습니다!", "success");
+                            }
+                            onApply(item.id);
+                            onClose();
+                        }
+                    }}
+                    className="flex-[2] py-4 bg-slate-900 dark:bg-indigo-600 text-white font-bold rounded-xl hover:bg-slate-800 dark:hover:bg-indigo-500 shadow-lg shadow-slate-200 dark:shadow-none transition-colors flex items-center justify-center gap-2"
+                >
+                    입금 완료했어요 <CheckCircle2 size={18} />
+                </button>
+            </div>
+        </div>
+      );
+  };
 
   // --- Q&A Component ---
   const QnaSection = () => (
       <div className="animate-in fade-in duration-300">
+          {item.kakaoChatUrl && (
+              <div className="mb-6">
+                  <button 
+                    onClick={() => window.open(item.kakaoChatUrl, '_blank')}
+                    className="w-full py-3 bg-[#FEE500] hover:bg-[#FDD835] text-[#3c1e1e] font-bold rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm"
+                  >
+                      <MessageCircle size={20} className="fill-[#3c1e1e]"/> 호스트와 1:1 카톡 문의하기
+                  </button>
+                  <p className="text-center text-[10px] text-slate-400 mt-2">빠른 답변을 원하시면 오픈채팅방을 이용해주세요.</p>
+              </div>
+          )}
+
           <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl mb-6">
               <textarea 
                 value={question}
@@ -196,6 +337,7 @@ const Modal: React.FC<ModalProps> = ({
                         <>
                             <div className="flex border-b border-slate-100 dark:border-slate-800 mb-6">
                                 <button onClick={() => setActiveTab('details')} className={`flex-1 pb-3 text-sm font-bold transition-colors ${activeTab === 'details' ? 'text-pink-600 dark:text-pink-400 border-b-2 border-pink-600 dark:border-pink-400' : 'text-slate-400'}`}>상세정보</button>
+                                <button onClick={() => setActiveTab('host')} className={`flex-1 pb-3 text-sm font-bold transition-colors ${activeTab === 'host' ? 'text-pink-600 dark:text-pink-400 border-b-2 border-pink-600 dark:border-pink-400' : 'text-slate-400'}`}>호스트 소개</button>
                                 <button onClick={() => setActiveTab('qna')} className={`flex-1 pb-3 text-sm font-bold transition-colors ${activeTab === 'qna' ? 'text-pink-600 dark:text-pink-400 border-b-2 border-pink-600 dark:border-pink-400' : 'text-slate-400'}`}>문의하기</button>
                             </div>
 
@@ -232,6 +374,8 @@ const Modal: React.FC<ModalProps> = ({
                                         </ul>
                                     </div>
                                 </div>
+                            ) : activeTab === 'host' ? (
+                                <HostSection />
                             ) : (
                                 <QnaSection />
                             )}
@@ -373,8 +517,9 @@ const Modal: React.FC<ModalProps> = ({
                   {step === 'info' ? (
                       <>
                         <div className="flex border-b border-slate-100 dark:border-slate-800 mb-6">
-                            <button onClick={() => setActiveTab('details')} className={`pb-3 pr-6 text-sm font-bold transition-colors ${activeTab === 'details' ? `text-${themeColor}-600 dark:text-${themeColor}-400 border-b-2 border-${themeColor}-600 dark:border-${themeColor}-400` : 'text-slate-400'}`}>상세정보</button>
-                            <button onClick={() => setActiveTab('qna')} className={`pb-3 px-6 text-sm font-bold transition-colors ${activeTab === 'qna' ? `text-${themeColor}-600 dark:text-${themeColor}-400 border-b-2 border-${themeColor}-600 dark:border-${themeColor}-400` : 'text-slate-400'}`}>문의하기</button>
+                            <button onClick={() => setActiveTab('details')} className={`pb-3 flex-1 text-sm font-bold transition-colors ${activeTab === 'details' ? `text-${themeColor}-600 dark:text-${themeColor}-400 border-b-2 border-${themeColor}-600 dark:border-${themeColor}-400` : 'text-slate-400'}`}>상세정보</button>
+                            <button onClick={() => setActiveTab('host')} className={`pb-3 flex-1 text-sm font-bold transition-colors ${activeTab === 'host' ? `text-${themeColor}-600 dark:text-${themeColor}-400 border-b-2 border-${themeColor}-600 dark:border-${themeColor}-400` : 'text-slate-400'}`}>호스트 소개</button>
+                            <button onClick={() => setActiveTab('qna')} className={`pb-3 flex-1 text-sm font-bold transition-colors ${activeTab === 'qna' ? `text-${themeColor}-600 dark:text-${themeColor}-400 border-b-2 border-${themeColor}-600 dark:border-${themeColor}-400` : 'text-slate-400'}`}>문의하기</button>
                         </div>
 
                         {activeTab === 'details' ? (
@@ -410,6 +555,8 @@ const Modal: React.FC<ModalProps> = ({
                                     )}
                                 </div>
                             </>
+                        ) : activeTab === 'host' ? (
+                            <HostSection />
                         ) : (
                             <QnaSection />
                         )}

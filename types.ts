@@ -18,6 +18,17 @@ export interface Review {
   avatar?: string; // Optional user avatar
 }
 
+export interface BriefingItem {
+  id: number;
+  text: string;
+  highlight: string;
+}
+
+export interface CategoryHeaderInfo {
+  title: string;
+  description: string;
+}
+
 export interface BaseItem {
   id: number;
   title: string;
@@ -31,6 +42,10 @@ export interface BaseItem {
   loc?: string;
   status: 'open' | 'closed' | 'ended'; // open: 모집중, closed: 마감, ended: 종료(후기/결과)
   reviews?: Review[];
+  hostBankInfo?: string; // Host's bank account for direct transfers
+  kakaoChatUrl?: string; // New: Kakao Open Chat URL for inquiries
+  hostDescription?: string; // New: Host self-introduction text
+  hostIntroImage?: string; // New: Host self-introduction image
 }
 
 export interface NetworkingItem extends BaseItem {

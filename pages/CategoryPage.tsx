@@ -1,50 +1,46 @@
 
 import React, { useState, useEffect } from 'react';
 import Card from '../components/Card';
-import { AnyItem, CategoryType, BadgeConfig, CrewItem } from '../types';
-import { Quote, Star, SearchX } from 'lucide-react';
+import { AnyItem, CategoryType, BadgeConfig, CrewItem, CategoryHeaderInfo } from '../types';
+import { Quote, Star, SearchX, ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
 
 interface CategoryPageProps {
   categoryType: CategoryType;
   items: AnyItem[];
   badges: BadgeConfig[];
+  headerInfo: CategoryHeaderInfo; // New prop for dynamic text
   onItemClick: (item: AnyItem) => void;
   likedIds: number[];
   toggleLike: (id: number) => void;
-  bannerImg?: string;
+  detailImage?: string;
+  // bannerImg prop is removed as per request to focus on text header
 }
 
 const CategoryPage: React.FC<CategoryPageProps> = ({ 
   categoryType, 
   items, 
   badges, 
+  headerInfo,
   onItemClick,
   likedIds,
   toggleLike,
-  bannerImg
+  detailImage
 }) => {
   const [filter, setFilter] = useState('all');
   const [filteredItems, setFilteredItems] = useState<AnyItem[]>(items);
+  const [isDetailExpanded, setIsDetailExpanded] = useState(false);
 
-  let title = "";
-  let description = "";
+  // Dynamic Header derived from props
+  const { title, description } = headerInfo;
+
   let reviewTitle = "생생한 참여 후기";
-
   if (categoryType === 'minddate') {
-      title = "💘 마인드데이트";
-      description = "재테크 가치관이 맞는 소중한 인연을 찾아보세요.";
       reviewTitle = "💘 설레는 만남 후기";
   } else if (categoryType === 'crew') {
-      title = "🏃 임장 크루";
-      description = "혼자서는 막막한 임장, 전문가 리더와 함께 걸어요.";
       reviewTitle = "👟 임장 크루 찐 후기";
   } else if (categoryType === 'networking') {
-      title = "📚 스터디 & 네트워킹";
-      description = "함께 공부하고 성장하는 부동산 커뮤니티.";
       reviewTitle = "📚 멤버들의 성장 후기";
   } else if (categoryType === 'lecture') {
-      title = "🎓 재테크 강의";
-      description = "검증된 전문가의 노하우를 배우는 프리미엄 클래스.";
       reviewTitle = "🎓 수강생 리얼 후기";
   }
 
@@ -83,21 +79,54 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
   return (
     <div className="max-w-7xl mx-auto pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
-      {/* Banner */}
-      <div className="rounded-3xl mb-8 shadow-lg relative overflow-hidden group h-[240px] md:h-[280px]">
-        <div 
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
-            style={{ backgroundImage: `url(${bannerImg || 'https://via.placeholder.com/1600x400'})` }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
-        <div className="relative z-10 h-full flex flex-col justify-center p-8 md:p-12">
-            <h1 className="text-3xl md:text-5xl font-extrabold mb-3 tracking-tight text-white drop-shadow-lg">{title}</h1>
-            <p className="text-lg md:text-xl text-slate-100 font-medium max-w-2xl drop-shadow-md">{description}</p>
-        </div>
+      {/* Minimal Header (Dynamic Text) */}
+      <div className="pt-4 pb-6 px-1">
+          <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tight">{title}</h1>
+          <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl">{description}</p>
       </div>
 
+      {/* Detail Image Preview (Peek) - Fixed for Long Images */}
+      {detailImage && (
+          <div className="relative mb-8 group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+              <div 
+                className={`relative w-full bg-slate-50 dark:bg-slate-900 transition-all duration-700 ease-in-out ${
+                    isDetailExpanded 
+                    ? 'max-h-[75vh] overflow-y-auto custom-scrollbar' 
+                    : 'max-h-60 md:max-h-96 overflow-hidden'
+                }`}
+              >
+                  <img 
+                    src={detailImage} 
+                    alt={`${title} 상세 가이드`} 
+                    className="w-full h-auto object-top"
+                  />
+                  
+                  {/* Gradient Overlay for Collapsed State */}
+                  {!isDetailExpanded && (
+                      <div 
+                        className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white dark:to-slate-900 flex flex-col justify-end items-center pb-6 cursor-pointer"
+                        onClick={() => setIsDetailExpanded(true)}
+                      >
+                          <button className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md px-5 py-2.5 rounded-full text-sm font-bold shadow-md border border-slate-200 dark:border-slate-700 flex items-center gap-2 hover:scale-105 transition-transform text-slate-900 dark:text-white animate-bounce-slow">
+                              <BookOpen size={16} className="text-indigo-500"/> 이용 가이드 펼쳐보기 <ChevronDown size={14} />
+                          </button>
+                      </div>
+                  )}
+              </div>
+
+              {/* Fold Button for Expanded State */}
+              {isDetailExpanded && (
+                  <div className="text-center py-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 z-10 relative shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                      <button onClick={() => setIsDetailExpanded(false)} className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 text-sm font-bold flex items-center justify-center gap-1 mx-auto px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+                          <ChevronUp size={16} /> 가이드 접기
+                      </button>
+                  </div>
+              )}
+          </div>
+      )}
+
       {/* Sticky Tabs */}
-      <div className="flex gap-2 mb-8 border-b border-slate-200 dark:border-slate-800 pb-1 overflow-x-auto no-scrollbar sticky top-0 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur z-20 pt-4 -mx-4 px-4 md:mx-0 md:px-0 transition-colors duration-300">
+      <div className="flex gap-2 mb-6 border-b border-slate-200 dark:border-slate-800 pb-1 overflow-x-auto no-scrollbar sticky top-0 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur z-20 pt-4 -mx-4 px-4 md:mx-0 md:px-0 transition-colors duration-300">
         {badges.map((badge) => (
           <button
             key={badge.value}

@@ -11,7 +11,7 @@ import CategoryPage from './pages/CategoryPage';
 import MyPage from './pages/MyPage';
 import AdminPage from './pages/AdminPage';
 import { networkingList, matchingList, crewList, lectureList, slides as initialSlides } from './constants';
-import { AnyItem, User, Slide } from './types';
+import { AnyItem, User, Slide, BriefingItem, CategoryHeaderInfo } from './types';
 import { X, ArrowUp } from 'lucide-react';
 
 // --- SVG Icons for Social Login ---
@@ -34,6 +34,9 @@ const App: React.FC = () => {
   const [likedIds, setLikedIds] = useState<number[]>([]);
   const [appliedIds, setAppliedIds] = useState<number[]>([]);
   const [unlockedIds, setUnlockedIds] = useState<number[]>([]);
+
+  // --- Admin Settings ---
+  const [commissionRate, setCommissionRate] = useState(15); // Default 15% fee
 
   // --- Theme State ---
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -114,13 +117,31 @@ const App: React.FC = () => {
     "👟 [모집] 마포구 임장 크루 리더가 코스를 업데이트했습니다.",
     "🎓 [신규] '2025 부동산 전망' VOD가 업로드 되었습니다."
   ]);
+  
+  // --- Daily Briefing State (Shared between Admin & Home) ---
+  const [dailyBriefing, setDailyBriefing] = useState<BriefingItem[]>([
+      { id: 1, text: "금리 인하 기대감: 코픽스 금리 2개월 연속 하락, 대출 숨통 트이나?", highlight: "금리 인하 기대감" },
+      { id: 2, text: "강남 3구: 토지거래허가구역 재지정 이슈 체크 필수.", highlight: "강남 3구" },
+      { id: 3, text: "임풋 Tip: 지금은 추격 매수보다 급매물 모니터링이 필요한 시점.", highlight: "임풋 Tip" }
+  ]);
 
-  const [categoryBanners, setCategoryBanners] = useState({
-      networking: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1600",
-      minddate: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&q=80&w=1600",
-      crew: "https://images.unsplash.com/photo-1475721027767-4d563518e5c7?auto=format&fit=crop&q=80&w=1600",
-      lecture: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=1600",
-      mypage: "https://images.unsplash.com/photo-1484417894907-623942c8ee29?auto=format&fit=crop&q=80&w=1600"
+  // --- Category Header Texts (Replaces Images) ---
+  const [categoryHeaders, setCategoryHeaders] = useState<{[key: string]: CategoryHeaderInfo}>({
+      networking: { title: "📚 스터디 & 네트워킹", description: "함께 공부하고 성장하는 부동산 커뮤니티." },
+      minddate: { title: "💘 마인드데이트", description: "재테크 가치관이 맞는 소중한 인연을 찾아보세요." },
+      crew: { title: "🏃 임장 크루", description: "혼자서는 막막한 임장, 전문가 리더와 함께 걸어요." },
+      lecture: { title: "🎓 재테크 강의", description: "검증된 전문가의 노하우를 배우는 프리미엄 클래스." }
+  });
+
+  // --- MyPage Banner (Still Image) ---
+  const [myPageBanner, setMyPageBanner] = useState("https://images.unsplash.com/photo-1484417894907-623942c8ee29?auto=format&fit=crop&q=80&w=1600");
+
+  // --- Category Detail Images (Accordion) ---
+  const [categoryDetailImages, setCategoryDetailImages] = useState({
+    networking: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=2000",
+    minddate: "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&q=80&w=2000",
+    crew: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=2000",
+    lecture: "https://images.unsplash.com/photo-1544531696-fa3693fb4b38?auto=format&fit=crop&q=80&w=2000"
   });
 
   useEffect(() => {
@@ -152,6 +173,23 @@ const App: React.FC = () => {
     setSelectedItem(null);
   };
 
+  // --- Helper to calculate user stats (Level/Rank) ---
+  const calculateStats = () => {
+      const totalXP = (likedIds.length * 10) + ((appliedIds.length + unlockedIds.length) * 50);
+      let level = 1;
+      let rankName = "임린이";
+      
+      if (totalXP >= 300 && totalXP < 1000) {
+          level = 2;
+          rankName = "임대장";
+      } else if (totalXP >= 1000) {
+          level = 3;
+          rankName = "부동산 고수";
+      }
+      return { level, rankName, totalXP };
+  };
+  const { level, rankName } = calculateStats();
+
   const toggleLike = (id: number) => {
     if (!currentUser) {
         setIsLoginOpen(true);
@@ -161,7 +199,7 @@ const App: React.FC = () => {
     const isLiked = likedIds.includes(id);
     setLikedIds(prev => isLiked ? prev.filter(itemId => itemId !== id) : [...prev, id]);
     if (!isLiked) {
-        showToast("관심 목록에 추가되었습니다!", "success");
+        showToast("관심 목록 추가! (+10 XP)", "success");
     } else {
         showToast("관심 목록에서 삭제되었습니다.", "info");
     }
@@ -175,7 +213,7 @@ const App: React.FC = () => {
     }
     if (!appliedIds.includes(id)) {
       setAppliedIds(prev => [...prev, id]);
-      showToast("신청이 완료되었습니다! 마이페이지에서 확인하세요.", "success");
+      showToast("신청 완료! 경험치가 상승했습니다 (+50 XP)", "success");
     }
   };
 
@@ -187,7 +225,7 @@ const App: React.FC = () => {
     }
     if (!unlockedIds.includes(id)) {
       setUnlockedIds(prev => [...prev, id]);
-      showToast("리포트가 잠금 해제되었습니다.", "success");
+      showToast("리포트 잠금 해제! (+50 XP)", "success");
     }
   };
 
@@ -196,41 +234,17 @@ const App: React.FC = () => {
       let newUser: User;
       const timestamp = new Date().toISOString().split('T')[0];
 
-      // Simulate different users based on provider for testing
       if (provider === 'kakao') {
-          newUser = {
-              id: 1001,
-              name: '김카카오',
-              email: 'kakao_user@imfoot.com',
-              avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
-              roles: [],
-              joinDate: timestamp
-          };
+          newUser = { id: 1001, name: '김카카오', email: 'kakao_user@imfoot.com', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix', roles: [], joinDate: timestamp };
       } else if (provider === 'naver') {
-          newUser = {
-              id: 1002,
-              name: '이나이버',
-              email: 'naver_user@imfoot.com',
-              avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
-              roles: [],
-              joinDate: timestamp
-          };
+          newUser = { id: 1002, name: '이나이버', email: 'naver_user@imfoot.com', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka', roles: [], joinDate: timestamp };
       } else {
-          newUser = {
-              id: 1003,
-              name: '박구글',
-              email: 'google_user@imfoot.com',
-              avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob',
-              roles: ['super_admin'], // Google login simulates Admin for testing purposes
-              joinDate: timestamp
-          };
+          newUser = { id: 1003, name: '박구글', email: 'google_user@imfoot.com', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob', roles: ['super_admin'], joinDate: timestamp };
       }
 
-      // Save global user session
       localStorage.setItem('imfoot_user', JSON.stringify(newUser));
       setCurrentUser(newUser);
 
-      // Restore user-specific data
       const userLikes = localStorage.getItem(`likes_${newUser.id}`);
       const userApplies = localStorage.getItem(`applies_${newUser.id}`);
       const userUnlocks = localStorage.getItem(`unlocks_${newUser.id}`);
@@ -250,7 +264,12 @@ const App: React.FC = () => {
       setAppliedIds([]);
       setUnlockedIds([]);
       showToast("로그아웃 되었습니다.", "info");
-      window.location.reload(); // Refresh to clear state cleanly
+      window.location.reload(); 
+  };
+
+  const handleUpdateUser = (updatedUser: User) => {
+    setCurrentUser(updatedUser);
+    localStorage.setItem('imfoot_user', JSON.stringify(updatedUser));
   };
 
   return (
@@ -266,12 +285,20 @@ const App: React.FC = () => {
                 setGlobalSlides={setSlides}
                 globalNotis={notifications}
                 setGlobalNotis={setNotifications}
-                categoryBanners={categoryBanners}
-                setCategoryBanners={setCategoryBanners}
+                categoryHeaders={categoryHeaders}
+                setCategoryHeaders={setCategoryHeaders}
+                myPageBanner={myPageBanner}
+                setMyPageBanner={setMyPageBanner}
                 brandTagline={brandTagline}
                 setBrandTagline={setBrandTagline}
                 globalFont={globalFont}
                 setGlobalFont={setGlobalFont}
+                commissionRate={commissionRate}
+                setCommissionRate={setCommissionRate}
+                categoryDetailImages={categoryDetailImages}
+                setCategoryDetailImages={setCategoryDetailImages}
+                dailyBriefing={dailyBriefing}
+                setDailyBriefing={setDailyBriefing}
                 showToast={showToast}
             />
           } 
@@ -289,6 +316,8 @@ const App: React.FC = () => {
                     isDarkMode={isDarkMode}
                     toggleTheme={toggleTheme}
                     onLogout={handleLogout}
+                    userLevel={level}
+                    userRank={rankName}
                   />
               </div>
 
@@ -309,6 +338,9 @@ const App: React.FC = () => {
                             </button>
                             {currentUser ? (
                                 <div className="flex items-center gap-2" onClick={handleLogout}>
+                                    <div className="text-right hidden sm:block">
+                                        <p className="text-xs font-bold text-slate-900 dark:text-white">Lv.{level} {currentUser.name}</p>
+                                    </div>
                                     <img src={currentUser.avatar} className="w-8 h-8 rounded-full border border-slate-200" alt="profile"/>
                                 </div>
                             ) : (
@@ -320,12 +352,12 @@ const App: React.FC = () => {
                     </div>
 
                     <Routes>
-                        <Route path="/" element={<Home onItemClick={handleItemClick} likedIds={likedIds} toggleLike={toggleLike} slides={slides} notifications={notifications} brandTagline={brandTagline}/>} />
-                        <Route path="/networking" element={<CategoryPage categoryType="networking" items={networkingList} bannerImg={categoryBanners.networking} badges={[{label: "전체", value: "all"}, {label: "모집중", value: "open"}, {label: "종료됨", value: "ended"}]} onItemClick={handleItemClick} likedIds={likedIds} toggleLike={toggleLike} />} />
-                        <Route path="/minddate" element={<CategoryPage categoryType="minddate" items={matchingList} bannerImg={categoryBanners.minddate} badges={[{label: "전체", value: "all"}, {label: "모집중", value: "open"}, {label: "종료됨", value: "ended"}]} onItemClick={handleItemClick} likedIds={likedIds} toggleLike={toggleLike} />} />
-                        <Route path="/crew" element={<CategoryPage categoryType="crew" items={crewList} bannerImg={categoryBanners.crew} badges={[{label: "크루 모집", value: "recruit"}, {label: "임장 리포트", value: "report"}]} onItemClick={handleItemClick} likedIds={likedIds} toggleLike={toggleLike} />} />
-                        <Route path="/lecture" element={<CategoryPage categoryType="lecture" items={lectureList} bannerImg={categoryBanners.lecture} badges={[{label: "전체", value: "all"}, {label: "온라인(VOD)", value: "VOD"}, {label: "오프라인", value: "오프라인"}]} onItemClick={handleItemClick} likedIds={likedIds} toggleLike={toggleLike} />} />
-                        <Route path="/mypage" element={<MyPage likedIds={likedIds} appliedIds={appliedIds} unlockedIds={unlockedIds} onItemClick={handleItemClick} toggleLike={toggleLike} bannerImg={categoryBanners.mypage} currentUser={currentUser} />} />
+                        <Route path="/" element={<Home onItemClick={handleItemClick} likedIds={likedIds} toggleLike={toggleLike} slides={slides} notifications={notifications} brandTagline={brandTagline} dailyBriefing={dailyBriefing} />} />
+                        <Route path="/networking" element={<CategoryPage categoryType="networking" items={networkingList} headerInfo={categoryHeaders.networking} detailImage={categoryDetailImages.networking} badges={[{label: "전체", value: "all"}, {label: "모집중", value: "open"}, {label: "종료됨", value: "ended"}]} onItemClick={handleItemClick} likedIds={likedIds} toggleLike={toggleLike} />} />
+                        <Route path="/minddate" element={<CategoryPage categoryType="minddate" items={matchingList} headerInfo={categoryHeaders.minddate} detailImage={categoryDetailImages.minddate} badges={[{label: "전체", value: "all"}, {label: "모집중", value: "open"}, {label: "종료됨", value: "ended"}]} onItemClick={handleItemClick} likedIds={likedIds} toggleLike={toggleLike} />} />
+                        <Route path="/crew" element={<CategoryPage categoryType="crew" items={crewList} headerInfo={categoryHeaders.crew} detailImage={categoryDetailImages.crew} badges={[{label: "크루 모집", value: "recruit"}, {label: "임장 리포트", value: "report"}]} onItemClick={handleItemClick} likedIds={likedIds} toggleLike={toggleLike} />} />
+                        <Route path="/lecture" element={<CategoryPage categoryType="lecture" items={lectureList} headerInfo={categoryHeaders.lecture} detailImage={categoryDetailImages.lecture} badges={[{label: "전체", value: "all"}, {label: "온라인(VOD)", value: "VOD"}, {label: "오프라인", value: "오프라인"}]} onItemClick={handleItemClick} likedIds={likedIds} toggleLike={toggleLike} />} />
+                        <Route path="/mypage" element={<MyPage likedIds={likedIds} appliedIds={appliedIds} unlockedIds={unlockedIds} onItemClick={handleItemClick} toggleLike={toggleLike} bannerImg={myPageBanner} currentUser={currentUser} commissionRate={commissionRate} onUpdateUser={handleUpdateUser} showToast={showToast} />} />
                     </Routes>
                 </main>
                 <Footer />
@@ -361,7 +393,7 @@ const App: React.FC = () => {
                       <div className="text-center mb-8">
                           <div className="w-12 h-12 bg-slate-900 dark:bg-white rounded-xl flex items-center justify-center mx-auto mb-4 text-white dark:text-slate-900 font-bold text-xl">임</div>
                           <h2 className="text-xl font-bold text-slate-900 dark:text-white">로그인</h2>
-                          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">3초만에 시작하고 함께 성장하세요</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">나와 같은 방향을 걷는 사람들을 만나는 곳</p>
                       </div>
                       <div className="space-y-3">
                           <button onClick={() => handleLogin('kakao')} className="w-full py-3.5 px-4 bg-[#FEE500] hover:bg-[#FDD835] text-[#3c1e1e] font-medium rounded-xl flex items-center justify-center gap-2 transition-colors relative">
@@ -377,9 +409,6 @@ const App: React.FC = () => {
                               Google로 계속하기
                           </button>
                       </div>
-                      <p className="text-[11px] text-slate-400 text-center mt-6">
-                          로그인 시 <span className="underline cursor-pointer">이용약관</span> 및 <span className="underline cursor-pointer">개인정보처리방침</span>에 동의하게 됩니다.
-                      </p>
                   </div>
                  </div>
               )}

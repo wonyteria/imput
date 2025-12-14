@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Home, Users, Heart, Map, GraduationCap, LogIn, Lock, Youtube, Instagram, MessageCircle, BookOpen, Sun, Moon, LogOut } from 'lucide-react';
+import { Home, Users, Heart, Map, GraduationCap, LogIn, Lock, Youtube, Instagram, MessageCircle, BookOpen, Sun, Moon, LogOut, Trophy } from 'lucide-react';
 import { User } from '../types';
 
 interface SidebarProps {
@@ -11,17 +11,23 @@ interface SidebarProps {
   isDarkMode: boolean;
   toggleTheme: () => void;
   onLogout?: () => void;
+  userLevel?: number;
+  userRank?: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onLoginClick, currentUser, showToast, isDarkMode, toggleTheme, onLogout }) => {
+const Sidebar: React.FC<SidebarProps> = ({ 
+    onLoginClick, currentUser, showToast, 
+    isDarkMode, toggleTheme, onLogout,
+    userLevel = 1, userRank = '임린이'
+}) => {
   const navigate = useNavigate();
   const navItems = [
     { to: '/', icon: Home, label: '홈' },
-    { to: '/networking', icon: Users, label: '스터디 & 네트워킹' },
     { to: '/minddate', icon: Heart, label: '마인드데이트' },
     { to: '/crew', icon: Map, label: '임장 크루' },
+    { to: '/networking', icon: Users, label: '스터디 & 네트워킹' },
     { to: '/lecture', icon: GraduationCap, label: '재테크 강의' },
-    { to: '/mypage', icon: Users, label: '마이페이지' }, // Icon placeholder
+    { to: '/mypage', icon: Users, label: '마이페이지' },
   ];
 
   const isAdmin = currentUser && (
@@ -31,13 +37,24 @@ const Sidebar: React.FC<SidebarProps> = ({ onLoginClick, currentUser, showToast,
 
   return (
     <aside className="fixed left-0 top-0 h-full w-20 lg:w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-40 flex flex-col transition-all duration-300">
-      <div className="p-6 flex items-center gap-3">
-        <div className="w-10 h-10 bg-slate-900 dark:bg-white rounded-xl flex items-center justify-center shadow-lg transition-colors">
-            <span className="text-white dark:text-slate-900 font-extrabold text-lg">임</span>
+      <div className="p-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-slate-900 dark:bg-white rounded-xl flex items-center justify-center shadow-lg transition-colors">
+                <span className="text-white dark:text-slate-900 font-extrabold text-lg">임</span>
+            </div>
+            <span className="font-extrabold text-2xl text-slate-900 dark:text-white hidden lg:block tracking-tight">
+                임풋
+            </span>
         </div>
-        <span className="font-extrabold text-2xl text-slate-900 dark:text-white hidden lg:block tracking-tight">
-            임풋
-        </span>
+        
+        {/* Dark Mode Toggle - Small Icon in Header */}
+        <button 
+          onClick={toggleTheme}
+          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors hidden lg:block"
+          title={isDarkMode ? '라이트 모드' : '다크 모드'}
+        >
+          {isDarkMode ? <Sun size={20} className="text-amber-400"/> : <Moon size={20} className="text-slate-600"/>}
+        </button>
       </div>
 
       <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto no-scrollbar">
@@ -60,21 +77,22 @@ const Sidebar: React.FC<SidebarProps> = ({ onLoginClick, currentUser, showToast,
       </nav>
 
       <div className="p-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
-        {/* Theme Toggle */}
-        <button 
-          onClick={toggleTheme}
-          className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
-        >
-          {isDarkMode ? <Sun size={22} className="text-amber-400"/> : <Moon size={22} className="text-slate-600"/>}
-          <span className="hidden lg:block font-medium">{isDarkMode ? '라이트 모드' : '다크 모드'}</span>
-        </button>
-
         {currentUser ? (
              <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
                  <div className="flex items-center gap-3 mb-3">
-                     <img src={currentUser.avatar} alt="Profile" className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700" />
+                     <div className="relative">
+                        <img src={currentUser.avatar} alt="Profile" className="w-10 h-10 rounded-full border border-slate-200 dark:border-slate-700" />
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-indigo-600 rounded-full flex items-center justify-center text-[8px] font-bold text-white border border-white dark:border-slate-800">
+                            {userLevel}
+                        </div>
+                     </div>
                      <div className="hidden lg:block overflow-hidden">
-                         <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{currentUser.name}</p>
+                         <div className="flex items-center gap-1.5 mb-0.5">
+                             <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{currentUser.name}</p>
+                             <span className="text-[9px] bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded font-bold">
+                                {userRank}
+                             </span>
+                         </div>
                          <p className="text-xs text-slate-400 truncate">{currentUser.email}</p>
                      </div>
                  </div>
